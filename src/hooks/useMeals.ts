@@ -16,7 +16,11 @@ export function useMeals() {
   const [meals, setMeals] = useState<Meal[]>(loadMeals);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(meals));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(meals));
+    } catch (e) {
+      console.warn("localStorage quota exceeded, data may not persist", e);
+    }
   }, [meals]);
 
   const addMeal = useCallback((meal: Meal) => {
