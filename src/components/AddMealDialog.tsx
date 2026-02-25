@@ -15,11 +15,23 @@ interface AddMealDialogProps {
 }
 
 export function AddMealDialog({ open, onOpenChange, onSave, editMeal }: AddMealDialogProps) {
-  const [name, setName] = useState(editMeal?.name ?? "");
-  const [photo, setPhoto] = useState(editMeal?.photo ?? "");
-  const [ingredients, setIngredients] = useState<Ingredient[]>(editMeal?.ingredients ?? []);
+  const [name, setName] = useState("");
+  const [photo, setPhoto] = useState("");
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Sync form when editMeal changes (opening in edit mode)
+  const prevEditRef = useRef<Meal | null | undefined>(undefined);
+  if (editMeal !== prevEditRef.current) {
+    prevEditRef.current = editMeal;
+    if (editMeal) {
+      setName(editMeal.name);
+      setPhoto(editMeal.photo);
+      setIngredients([...editMeal.ingredients]);
+      setNewIngredient("");
+    }
+  }
 
   const resetForm = () => {
     setName("");
