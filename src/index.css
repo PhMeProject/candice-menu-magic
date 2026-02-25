@@ -102,9 +102,36 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Nunito', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3 {
     font-family: 'Playfair Display', serif;
   }
+}
+
+/* iPhone safe areas */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Prevent pull-to-refresh interference on scrollable areas */
+@supports (overscroll-behavior: none) {
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Smooth scrolling for iOS */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

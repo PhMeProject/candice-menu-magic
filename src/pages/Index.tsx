@@ -92,7 +92,7 @@ const Index = () => {
       </section>
 
       {/* FABs */}
-      <div className="fixed bottom-20 right-5 z-50 flex flex-col gap-3">
+      <div className="fixed right-5 z-50 flex flex-col gap-3" style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
         <Button
           size="icon"
           variant="secondary"
