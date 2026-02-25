@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, X, ArrowRightLeft, Images, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, X, ArrowRightLeft, Images, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { uploadMealPhoto } from "@/lib/photo-storage";
 import type { Meal, Ingredient } from "@/types/meal";
 
 interface PhotoDraft {
-  photo: string;
+  photo: string; // cloud URL after upload
   name: string;
   ingredients: Ingredient[];
 }
@@ -19,33 +20,11 @@ interface BulkImportDialogProps {
   onSaveAll: (meals: Meal[]) => void;
 }
 
-function compressImage(file: File): Promise<string> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const MAX = 400;
-      let w = img.width, h = img.height;
-      if (w > MAX || h > MAX) {
-        const ratio = Math.min(MAX / w, MAX / h);
-        w = Math.round(w * ratio);
-        h = Math.round(h * ratio);
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.7));
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  });
-}
-
 export function BulkImportDialog({ open, onOpenChange, onSaveAll }: BulkImportDialogProps) {
   const [drafts, setDrafts] = useState<PhotoDraft[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [newIngredient, setNewIngredient] = useState("");
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const reset = () => {
@@ -62,11 +41,17 @@ export function BulkImportDialog({ open, onOpenChange, onSaveAll }: BulkImportDi
   const handleFiles = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
-    const photos = await Promise.all(files.map(compressImage));
-    setDrafts(photos.map((photo) => ({ photo, name: "", ingredients: [] })));
-    setCurrentIdx(0);
-    // Reset input so same files can be re-selected
-    e.target.value = "";
+    try {
+      setUploading(true);
+      const urls = await Promise.all(files.map((f) => uploadMealPhoto(f)));
+      setDrafts(urls.map((photo) => ({ photo, name: "", ingredients: [] })));
+      setCurrentIdx(0);
+    } catch (err) {
+      console.error("Bulk upload failed:", err);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   }, []);
 
   const draft = drafts[currentIdx];
@@ -146,12 +131,22 @@ export function BulkImportDialog({ open, onOpenChange, onSaveAll }: BulkImportDi
           />
           <button
             onClick={() => fileRef.current?.click()}
+            disabled={uploading}
             className="flex w-full aspect-video items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 text-muted-foreground hover:bg-muted transition-colors"
           >
             <div className="text-center">
-              <Images className="mx-auto h-10 w-10 mb-2" />
-              <span className="text-sm font-medium">Select photos from camera roll</span>
-              <span className="block text-xs text-muted-foreground mt-1">Pick multiple at once</span>
+              {uploading ? (
+                <>
+                  <Loader2 className="mx-auto h-10 w-10 mb-2 animate-spin" />
+                  <span className="text-sm font-medium">Uploading photos…</span>
+                </>
+              ) : (
+                <>
+                  <Images className="mx-auto h-10 w-10 mb-2" />
+                  <span className="text-sm font-medium">Select photos from camera roll</span>
+                  <span className="block text-xs text-muted-foreground mt-1">Pick multiple at once</span>
+                </>
+              )}
             </div>
           </button>
         </DialogContent>

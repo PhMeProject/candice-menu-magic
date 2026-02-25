@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, X, Camera, ArrowRightLeft } from "lucide-react";
+import { Plus, X, Camera, ArrowRightLeft, Loader2 } from "lucide-react";
+import { uploadMealPhoto } from "@/lib/photo-storage";
 import type { Meal, Ingredient } from "@/types/meal";
 
 interface AddMealDialogProps {
@@ -50,27 +51,20 @@ export function AddMealDialog({ open, onOpenChange, onSave, editMeal }: AddMealD
     onOpenChange(o);
   };
 
-  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const MAX = 400;
-      let w = img.width, h = img.height;
-      if (w > MAX || h > MAX) {
-        const ratio = Math.min(MAX / w, MAX / h);
-        w = Math.round(w * ratio);
-        h = Math.round(h * ratio);
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-      setPhoto(canvas.toDataURL("image/jpeg", 0.7));
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
+    try {
+      setUploading(true);
+      const url = await uploadMealPhoto(file);
+      setPhoto(url);
+    } catch (err) {
+      console.error("Photo upload failed:", err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const addIngredient = () => {
@@ -144,11 +138,16 @@ export function AddMealDialog({ open, onOpenChange, onSave, editMeal }: AddMealD
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
+                disabled={uploading}
                 className="flex w-full aspect-video items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 text-muted-foreground hover:bg-muted transition-colors"
               >
                 <div className="text-center">
-                  <Camera className="mx-auto h-8 w-8 mb-2" />
-                  <span className="text-sm font-medium">Add a photo</span>
+                  {uploading ? (
+                    <Loader2 className="mx-auto h-8 w-8 mb-2 animate-spin" />
+                  ) : (
+                    <Camera className="mx-auto h-8 w-8 mb-2" />
+                  )}
+                  <span className="text-sm font-medium">{uploading ? "Uploading…" : "Add a photo"}</span>
                 </div>
               </button>
             )}
@@ -218,7 +217,7 @@ export function AddMealDialog({ open, onOpenChange, onSave, editMeal }: AddMealD
           <Button
             className="w-full rounded-xl"
             onClick={handleSave}
-            disabled={!name.trim() || !photo}
+            disabled={!name.trim() || !photo || uploading}
           >
             {editMeal ? "Save Changes" : "Add Meal"}
           </Button>
