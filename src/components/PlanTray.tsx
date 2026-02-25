@@ -15,7 +15,7 @@ export function PlanTray({ plan, meals, onSetServings, onClear }: PlanTrayProps)
   const mealMap = new Map(meals.map((m) => [m.id, m]));
 
   return (
-    <div className="fixed bottom-14 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-area-bottom">
+    <div className="fixed bottom-14 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md" style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="mx-auto max-w-lg px-4 py-2">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs font-semibold text-muted-foreground">
