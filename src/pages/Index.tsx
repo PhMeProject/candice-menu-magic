@@ -7,10 +7,12 @@ import { AddMealDialog } from "@/components/AddMealDialog";
 import { BulkImportDialog } from "@/components/BulkImportDialog";
 import { MealDetailSheet } from "@/components/MealDetailSheet";
 import { useMeals } from "@/hooks/useMeals";
+import { usePlan } from "@/hooks/usePlan";
 import type { Meal } from "@/types/meal";
 
 const Index = () => {
   const { meals, addMeal, updateMeal, deleteMeal } = useMeals();
+  const { removeMeal: removeMealFromPlan } = usePlan();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [editMeal, setEditMeal] = useState<Meal | null>(null);
@@ -134,7 +136,10 @@ const Index = () => {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         onEdit={handleEdit}
-        onDelete={deleteMeal}
+        onDelete={(id) => {
+          deleteMeal(id);
+          removeMealFromPlan(id);
+        }}
       />
     </main>
   );

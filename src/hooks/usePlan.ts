@@ -39,5 +39,9 @@ export function usePlan() {
 
   const clearPlan = useCallback(() => setPlan([]), []);
 
-  return { plan, toggleMeal, setServings, clearPlan };
+  const removeMeal = useCallback((mealId: string) => {
+    setPlan((prev) => prev.filter((p) => p.mealId !== mealId));
+  }, []);
+
+  return { plan, toggleMeal, setServings, clearPlan, removeMeal };
 }
