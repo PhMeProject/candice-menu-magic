@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Images } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MealCard } from "@/components/MealCard";
 import { AddMealDialog } from "@/components/AddMealDialog";
+import { BulkImportDialog } from "@/components/BulkImportDialog";
 import { MealDetailSheet } from "@/components/MealDetailSheet";
 import { useMeals } from "@/hooks/useMeals";
 import type { Meal } from "@/types/meal";
@@ -15,6 +16,7 @@ const Index = () => {
   const [editMeal, setEditMeal] = useState<Meal | null>(null);
   const [detailMeal, setDetailMeal] = useState<Meal | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return meals;
@@ -30,6 +32,10 @@ const Index = () => {
     if (editMeal) updateMeal(meal);
     else addMeal(meal);
     setEditMeal(null);
+  };
+
+  const handleBulkSave = (newMeals: Meal[]) => {
+    newMeals.forEach(addMeal);
   };
 
   const handleCardClick = (meal: Meal) => {
@@ -83,17 +89,27 @@ const Index = () => {
         )}
       </section>
 
-      {/* FAB */}
-      <Button
-        size="icon"
-        className="fixed bottom-20 right-5 z-50 h-14 w-14 rounded-full shadow-lg"
-        onClick={() => {
-          setEditMeal(null);
-          setAddOpen(true);
-        }}
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
+      {/* FABs */}
+      <div className="fixed bottom-20 right-5 z-50 flex flex-col gap-3">
+        <Button
+          size="icon"
+          variant="secondary"
+          className="h-11 w-11 rounded-full shadow-md"
+          onClick={() => setBulkOpen(true)}
+        >
+          <Images className="h-5 w-5" />
+        </Button>
+        <Button
+          size="icon"
+          className="h-14 w-14 rounded-full shadow-lg"
+          onClick={() => {
+            setEditMeal(null);
+            setAddOpen(true);
+          }}
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </div>
 
       {/* Dialogs */}
       <AddMealDialog
@@ -104,6 +120,13 @@ const Index = () => {
         }}
         onSave={handleSave}
         editMeal={editMeal}
+      />
+
+
+      <BulkImportDialog
+        open={bulkOpen}
+        onOpenChange={setBulkOpen}
+        onSaveAll={handleBulkSave}
       />
 
       <MealDetailSheet
