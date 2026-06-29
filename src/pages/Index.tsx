@@ -6,6 +6,7 @@ import { MealCard } from "@/components/MealCard";
 import { AddMealDialog } from "@/components/AddMealDialog";
 import { BulkImportDialog } from "@/components/BulkImportDialog";
 import { MealDetailSheet } from "@/components/MealDetailSheet";
+import { ExportDataButton } from "@/components/ExportDataButton";
 import { useMeals } from "@/hooks/useMeals";
 import { usePlan } from "@/hooks/usePlan";
 import type { Meal } from "@/types/meal";
@@ -54,7 +55,10 @@ const Index = () => {
     <main className="min-h-screen pb-20">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-md px-4 pt-6 pb-3">
-        <h1 className="font-display text-2xl font-bold mb-3">My Meals</h1>
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="font-display text-2xl font-bold">My Meals</h1>
+          <ExportDataButton />
+        </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
