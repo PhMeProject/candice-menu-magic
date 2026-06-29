@@ -64,14 +64,26 @@ export function useMeals() {
         const cloudMeals = (data ?? []).map(rowToMeal);
         const local = loadLocal();
 
-        if (cloudMeals.length === 0 && local.length > 0) {
-          // One-time migration: push local data to cloud.
+        // Insert-only sync: push any local meals whose id is not already in cloud.
+        const cloudIds = new Set(cloudMeals.map((m) => m.id));
+        const missing = local.filter((m) => !cloudIds.has(m.id));
+        if (missing.length > 0) {
           const { error: insertErr } = await supabase
             .from("meals")
-            .insert(local.map(mealToRow));
-          if (insertErr) console.warn("Initial meal migration failed", insertErr);
-        } else if (cloudMeals.length > 0) {
-          setMeals(cloudMeals);
+            .upsert(missing.map(mealToRow), {
+              onConflict: "id",
+              ignoreDuplicates: true,
+            });
+          if (insertErr) console.warn("Meal sync insert failed", insertErr);
+        }
+
+        if (cloudMeals.length > 0) {
+          // Merge: prefer cloud records, keep any local-only ones in view too.
+          const merged = [
+            ...cloudMeals,
+            ...local.filter((m) => !cloudIds.has(m.id)),
+          ];
+          setMeals(merged);
         }
       } catch (e) {
         console.warn("Cloud sync unavailable, using local data", e);
