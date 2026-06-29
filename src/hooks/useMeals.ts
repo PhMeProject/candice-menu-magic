@@ -36,7 +36,7 @@ function mealToRow(m: Meal) {
     id: m.id,
     name: m.name,
     photo: m.photo ?? "",
-    ingredients: m.ingredients,
+    ingredients: m.ingredients as unknown as any,
     created_at_ms: m.createdAt,
   };
 }
