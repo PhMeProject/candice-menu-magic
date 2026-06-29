@@ -44,6 +44,27 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_presets: {
+        Row: {
+          created_at: string
+          id: string
+          meal_ids: Json
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          meal_ids?: Json
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meal_ids?: Json
+          name?: string
+        }
+        Relationships: []
+      }
       plan_entries: {
         Row: {
           created_at: string

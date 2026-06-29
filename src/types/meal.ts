@@ -17,3 +17,10 @@ export interface PlannedMeal {
   mealId: string;
   servings: number;
 }
+
+export interface MealPreset {
+  id: string;
+  name: string;
+  mealIds: string[];
+  createdAt: number;
+}

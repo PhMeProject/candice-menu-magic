@@ -1,4 +1,4 @@
-import { UtensilsCrossed, CalendarDays, ShoppingCart } from "lucide-react";
+import { UtensilsCrossed, CalendarDays, ShoppingCart, Zap } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -6,6 +6,7 @@ const tabs = [
   { path: "/", label: "Library", icon: UtensilsCrossed },
   { path: "/plan", label: "Plan", icon: CalendarDays },
   { path: "/grocery", label: "Grocery", icon: ShoppingCart },
+  { path: "/quick-start", label: "Quick Start", icon: Zap },
 ];
 
 export function BottomNav() {

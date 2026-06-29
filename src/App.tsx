@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import Index from "./pages/Index";
 import PlanPage from "./pages/PlanPage";
 import GroceryPage from "./pages/GroceryPage";
+import QuickStartPage from "./pages/QuickStartPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/plan" element={<PlanPage />} />
           <Route path="/grocery" element={<GroceryPage />} />
+          <Route path="/quick-start" element={<QuickStartPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <BottomNav />
