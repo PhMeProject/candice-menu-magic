@@ -44,17 +44,25 @@ export function usePlan() {
         }));
         const local = loadLocal();
 
-        if (cloudPlan.length === 0 && local.length > 0) {
-          // One-time migration of plan entries — only insert entries whose
-          // meal already exists in the cloud (FK constraint), retry safely.
+        // Insert-only sync: push local plan entries whose meal_id isn't in cloud.
+        const cloudIds = new Set(cloudPlan.map((p) => p.mealId));
+        const missing = local.filter((p) => !cloudIds.has(p.mealId));
+        if (missing.length > 0) {
           const { error: insertErr } = await supabase
             .from("plan_entries")
-            .insert(
-              local.map((p) => ({ meal_id: p.mealId, servings: p.servings }))
+            .upsert(
+              missing.map((p) => ({ meal_id: p.mealId, servings: p.servings })),
+              { onConflict: "meal_id", ignoreDuplicates: true }
             );
-          if (insertErr) console.warn("Initial plan migration failed", insertErr);
-        } else if (cloudPlan.length > 0) {
-          setPlan(cloudPlan);
+          if (insertErr) console.warn("Plan sync insert failed", insertErr);
+        }
+
+        if (cloudPlan.length > 0) {
+          const merged = [
+            ...cloudPlan,
+            ...local.filter((p) => !cloudIds.has(p.mealId)),
+          ];
+          setPlan(merged);
         }
       } catch (e) {
         console.warn("Plan cloud sync unavailable, using local", e);
