@@ -7,6 +7,7 @@ import { AddMealDialog } from "@/components/AddMealDialog";
 import { BulkImportDialog } from "@/components/BulkImportDialog";
 import { MealDetailSheet } from "@/components/MealDetailSheet";
 import { ExportDataButton } from "@/components/ExportDataButton";
+
 import { useMeals } from "@/hooks/useMeals";
 import { usePlan } from "@/hooks/usePlan";
 import type { Meal } from "@/types/meal";
